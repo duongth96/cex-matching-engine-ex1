@@ -1,6 +1,8 @@
 # project structure
+Project_Trading_System
 
-Project_Trading_System/
+$ tree
+.
 ├── src/
 │   ├── main.cs                     # Điểm khởi chạy chính của hệ thống
 │   ├── models/                     # Chứa định nghĩa các đối tượng dữ liệu
@@ -16,19 +18,10 @@ Project_Trading_System/
 │   ├── utils/                      # Các hàm tiện ích chung
 │   │   ├── logger.cs               # Hệ thống ghi log
 │   │   └── constants.cs            # Các hằng số của hệ thống
-│   └── tests/                      # Thư mục chứa các bài kiểm thử
-│       ├── test_order_book.cs
-│       ├── test_matching_engine.cs
-│       └── test_e2e_trading.cs
-├── config/                         # Các file cấu hình
-│   └── settings.ini               # Cấu hình hệ thống, thông số...
-├── data/                           # Thư mục chứa dữ liệu (nếu có)
-│   └── historical_data.csv         # Dữ liệu lịch sử để kiểm thử/phân tích
-├── requirements.txt                # Danh sách các thư viện Python cần thiết
-├── README.md                       # Mô tả project và hướng dẫn sử dụng
+
 
 # Giải thích chi tiết các thành phần chính:
-1. src/models/
+## 1. src/models/
 
     order.cs:
         Định nghĩa lớp Order (Lệnh giao dịch).
@@ -56,7 +49,7 @@ Project_Trading_System/
             sell_order_id: ID của lệnh bán đã tham gia.
             timestamp: Thời gian giao dịch được khớp.
 
-2. src/core/
+## 2. src/core/
 
     order_book.cs:
         Lớp OrderBook để quản lý sổ lệnh.
@@ -100,7 +93,7 @@ Project_Trading_System/
         Lớp để phát tán dữ liệu thị trường theo thời gian thực (ví dụ: giá khớp, độ sâu sổ lệnh) đến các client hoặc hệ thống khác.
         Sử dụng WebSocket hoặc Kafka để truyền dữ liệu.
 
-3. src/api/
+## 3. src/api/
 
     trading_api.cs:
         Xây dựng giao diện để client (người dùng) có thể tương tác với hệ thống.
@@ -108,14 +101,14 @@ Project_Trading_System/
         Hoặc một giao thức WebSocket để nhận các cập nhật dữ liệu thị trường theo thời gian thực.
         API này sẽ nhận lệnh từ client, có thể gọi RiskChecker trước, sau đó chuyển lệnh hợp lệ đến MatchingEngine.
 
-4. src/main.cs
+## 4. src/main.cs
 
     Điểm khởi chạy chính của ứng dụng.
     Khởi tạo các đối tượng cốt lõi: OrderBook, MatchingEngine, RiskChecker.
     Khởi chạy TradingAPI để bắt đầu lắng nghe các lệnh từ client.
     Thiết lập vòng lặp chính để xử lý các sự kiện (lệnh mới, hủy lệnh, v.v.).
 
-5. src/tests/
+## 5. src/tests/
 
     test_order_book.cs: Các unit test cho OrderBook (kiểm tra thêm/xóa lệnh, sắp xếp, lấy best bid/ask).
     test_matching_engine.cs: Các unit test cho MatchingEngine (kiểm tra các kịch bản khớp lệnh khác nhau: khớp hoàn toàn, khớp một phần, không khớp, lệnh thị trường, lệnh giới hạn).
