@@ -10,4 +10,9 @@
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\CEX.MatchingEngine.Core\CEX.MatchingEngine.Core.csproj" />
+    <ProjectReference Include="..\CEX.MatchingEngine.Data\CEX.MatchingEngine.Data.csproj" />
+  </ItemGroup>
+
 </Project>
