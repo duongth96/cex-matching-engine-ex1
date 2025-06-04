@@ -13,20 +13,9 @@ namespace CEX.MatchingEngine.Core.Models
         /// </summary>
         public bool IsBuy { get; set; }
         public decimal OpenVolume { get; set; }
-        public decimal RemainingVolume { get; set; }
-        public decimal FilledVolume { get; set; }
+        public decimal RemainingVolume { get; set; } = 0;
+        public decimal FilledVolume { get; set; } = 0;
         public decimal Price { get; set; }
-        /// <summary>
-        /// trigger price for stop order.
-        /// </summary>
-        public decimal StopPrice { get; set; }
-        public DateTime? CancelOn { get; set; }
-        public string? SefMatchAction { get; set; } 
-        public decimal OrderAmount { get; set; }
-        public string? FeeId { get; set; }
-        public decimal Fee { get; set; }
-        public long Sequnce { get; set; }
-        public decimal Cost { get; set; }
         public OrderStatus Status { get; set; } = OrderStatus.Undefined;
 
         /// <summary>

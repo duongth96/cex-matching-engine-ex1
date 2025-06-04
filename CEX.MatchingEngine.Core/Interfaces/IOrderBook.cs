@@ -12,6 +12,13 @@ namespace CEX.MatchingEngine.Core.Interfaces
         IEnumerable<Order> Bids { get; }
         IEnumerable<Order> Asks { get; }
 
+        #region cache incomming orders
+        void AddInCommingOrder(Order order);
+        void RemoveInCommingOrder(Order order);
+        IEnumerable<Order> GetInCommingOrders();
+
+        #endregion
+
         /// <summary>
         /// Adds an order to the order book.
         /// </summary>
