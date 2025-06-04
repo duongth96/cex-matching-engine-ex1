@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CEX.MatchingEngine.Core", "
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CEX.MatchingEngine.Test", "CEX.MatchingEngine.Test\CEX.MatchingEngine.Test.csproj", "{78B52BD7-883B-4395-A387-EEE4D1BC4041}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CEX.MatchingEngine.Data", "CEX.MatchingEngine.Data\CEX.MatchingEngine.Data.csproj", "{6CBC25A4-D0FB-420F-AD61-25855C3347D8}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,10 @@ Global
 		{78B52BD7-883B-4395-A387-EEE4D1BC4041}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{78B52BD7-883B-4395-A387-EEE4D1BC4041}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{78B52BD7-883B-4395-A387-EEE4D1BC4041}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6CBC25A4-D0FB-420F-AD61-25855C3347D8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6CBC25A4-D0FB-420F-AD61-25855C3347D8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6CBC25A4-D0FB-420F-AD61-25855C3347D8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6CBC25A4-D0FB-420F-AD61-25855C3347D8}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
