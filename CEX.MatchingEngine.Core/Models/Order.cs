@@ -1,9 +1,12 @@
 ﻿using CEX.MatchingEngine.Core.enums;
+using MongoDB.Bson;
+using MongoDB.Bson.Serialization.Attributes;
 
 namespace CEX.MatchingEngine.Core.Models
 {
     public class Order
     {
+        [BsonId]
         public Guid Id { get; set; }
         public Guid UserId { get; set; }
         public string Symbol { get; set; } = string.Empty;

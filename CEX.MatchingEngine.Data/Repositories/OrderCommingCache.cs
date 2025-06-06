@@ -39,5 +39,42 @@ namespace CEX.MatchingEngine.Data.Repositories
                 throw new InvalidOperationException("Failed to add order to cache.", ex);
             }
         }
+        public Task Remove(Guid orderId)
+        {
+            try
+            {
+                var exists = _memoryCache.TryGetValue(CACHE_KEY, out var cachedData);
+                if (exists)
+                {
+                    var orders = cachedData.ToString().Split(',').ToList();
+                    orders.Remove(orderId.ToString());
+                    _memoryCache.Set(CACHE_KEY, string.Join(",", orders), TimeSpan.FromMinutes(5));
+                }
+                return Task.CompletedTask;
+            }
+            catch (Exception ex)
+            {
+                // Handle exception (e.g., log it)
+                throw new InvalidOperationException("Failed to remove order from cache.", ex);
+            }
+        }
+        public Task<IEnumerable<Guid>> GetAll()
+        {
+            try
+            {
+                var exists = _memoryCache.TryGetValue(CACHE_KEY, out var cachedData);
+                if (exists)
+                {
+                    var orders = cachedData.ToString().Split(',').Select(Guid.Parse).ToList();
+                    return Task.FromResult<IEnumerable<Guid>>(orders);
+                }
+                return Task.FromResult<IEnumerable<Guid>>(new List<Guid>());
+            }
+            catch (Exception ex)
+            {
+                // Handle exception (e.g., log it)
+                throw new InvalidOperationException("Failed to retrieve orders from cache.", ex);
+            }
+        }
     }
 }

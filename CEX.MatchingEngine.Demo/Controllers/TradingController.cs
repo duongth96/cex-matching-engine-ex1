@@ -1,5 +1,6 @@
 ﻿using CEX.MatchingEngine.Core.Interfaces;
 using CEX.MatchingEngine.Data.Repositories;
+using CEX.MatchingEngine.Data.Services;
 using CEX.MatchingEngine.Demo.Models;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
@@ -13,17 +14,20 @@ namespace CEX.MatchingEngine.Demo.Controllers
         private readonly ILogger<TradingController> _logger;
         private readonly OrderRepository _orderRepository;
         private readonly TradeRepository _tradeRepository;
-        private readonly IOrderBook _orderBook;
+        private readonly OrderCommingCache _orderCommingCache;
+        private readonly OrderBookTraceService _orderBookTraceService;
         public TradingController(
             ILogger<TradingController> logger,
             TradeRepository tradeRepository,
             OrderRepository orderRepository,
-            IOrderBook orderBook)
+            OrderCommingCache orderCommingCache,
+            OrderBookTraceService orderBookTraceService)
         {
             _logger = logger;
             _tradeRepository = tradeRepository;
             _orderRepository = orderRepository;
-            _orderBook = orderBook;
+            _orderCommingCache = orderCommingCache;
+            _orderBookTraceService = orderBookTraceService;
 
         }
         [HttpGet("get-trades")]
@@ -39,6 +43,23 @@ namespace CEX.MatchingEngine.Demo.Controllers
             var data = await _orderRepository.GetAllAsync();
             return Ok(data);
         }
+        [HttpGet("init")]
+        public async Task<IActionResult> Init()
+        {
+            return Ok("Initialization complete.");
+        }
+        [HttpGet("order-book-trace")]
+        public async Task<IActionResult> GetOrderBookTrace()
+        {
+            var orderBook = await _orderBookTraceService.GetData();
+            if (orderBook == null)
+            {
+                return NotFound("Order book not found.");
+            }
+            return Ok(orderBook);
+        }
+
+
         [HttpPost("add-order")]
         public async Task<IActionResult> AddOrder([FromBody] OrderModel order)
         {
@@ -46,12 +67,13 @@ namespace CEX.MatchingEngine.Demo.Controllers
             {
                 return BadRequest("Order cannot be null.");
             }
-            order.OrderId = Guid.NewGuid(); // Generate a new OrderId for the order
             var eOrder = order.ToOrder();
             await _orderRepository.CreateAsync(eOrder);
-            _orderBook.AddInCommingOrder(eOrder);
+            await _orderCommingCache.Add(eOrder.Id);
 
             return Ok($"Order with ID {order.OrderId} placed successfully.");
         }
+
+        
     }
 }

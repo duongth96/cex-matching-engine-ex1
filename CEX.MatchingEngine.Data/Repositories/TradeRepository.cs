@@ -24,6 +24,10 @@ namespace CEX.MatchingEngine.Data.Repositories
         {
             return await _trades.Find(_ => true).ToListAsync();
         }
+        public async Task<List<Trade>> GetByOderIds(IEnumerable<Guid> orderids)
+        {
+            return await _trades.Find(t => orderids.Contains(t.BuyOrderId) || orderids.Contains(t.SellOrderId)).ToListAsync();
+        }
 
         public async Task CreateAsync(Trade trade)
         {

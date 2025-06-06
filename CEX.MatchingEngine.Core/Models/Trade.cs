@@ -1,4 +1,6 @@
-﻿using System;
+﻿using MongoDB.Bson;
+using MongoDB.Bson.Serialization.Attributes;
+using System;
 
 namespace CEX.MatchingEngine.Core.Models
 {
@@ -18,6 +20,7 @@ namespace CEX.MatchingEngine.Core.Models
             Symbol = symbol;
         }
 
+        [BsonId] 
         public Guid Id { get; set; }
         public decimal Price { get; set; }
         public decimal Quantity { get; set; }

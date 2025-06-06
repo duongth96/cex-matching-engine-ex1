@@ -1,6 +1,7 @@
 ﻿
 using CEX.MatchingEngine.Core.enums;
 using CEX.MatchingEngine.Core.Interfaces;
+using CEX.MatchingEngine.Data.Repositories;
 
 namespace CEX.MatchingEngine.Demo.Runners
 {
@@ -25,18 +26,20 @@ namespace CEX.MatchingEngine.Demo.Runners
             try
             {
                 using var scope = _factory.CreateScope();
-                var _orderBook = scope.ServiceProvider.GetRequiredService<IOrderBook>();
+                var _orderRepo = scope.ServiceProvider.GetRequiredService<OrderRepository>();
                 var _matchingEngine = scope.ServiceProvider.GetRequiredService<IMatchingEngine>();
-                var incommingOrders = _orderBook.GetInCommingOrders();
+                var _orderCommingCache = scope.ServiceProvider.GetRequiredService<OrderCommingCache>();
+                var _logger = scope.ServiceProvider.GetRequiredService<ILogger<MatchingRunner>>();
+                var incommingOrders = await _orderCommingCache.GetAll();
                 if (incommingOrders != null && incommingOrders.Any())
                 {
-                    foreach (var order in incommingOrders)
+                    foreach (var orderId in incommingOrders)
                     {
-                        if (order.Status == OrderStatus.Prepared)
-                        {
-                            _matchingEngine.Processing(order);
-                            _orderBook.RemoveInCommingOrder(order);
-                        }
+                        var order = await _orderRepo.GetByIdAsync(orderId);
+                        var side = order.IsBuy ? "Buy" : "Sell";
+                        _matchingEngine.Processing(order);
+                        await _orderCommingCache.Remove(orderId);
+                        _logger.LogInformation("Order {side}, {OrderId} processed successfully.", side, orderId);
                     }
                 }
             }

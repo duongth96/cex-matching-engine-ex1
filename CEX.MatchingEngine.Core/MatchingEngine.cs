@@ -1,5 +1,6 @@
 ﻿using CEX.MatchingEngine.Core.enums;
 using CEX.MatchingEngine.Core.Models;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,10 +12,15 @@ namespace CEX.MatchingEngine.Core;
 public class MatchingEngine : Interfaces.IMatchingEngine
 {
     private readonly Interfaces.IOrderBook _orderBook;
+    private readonly Interfaces.IMarketPublisher _matchedCache;
     private readonly Trades trades = new Trades();
-    public MatchingEngine(Interfaces.IOrderBook orderBook)
+    
+    public MatchingEngine(
+        Interfaces.IOrderBook orderBook,
+        Interfaces.IMarketPublisher matchedCache)
     {
         _orderBook = orderBook ?? throw new ArgumentNullException(nameof(orderBook));
+        _matchedCache = matchedCache;
     }
 
     public Trades Trades => trades;
@@ -28,14 +34,11 @@ public class MatchingEngine : Interfaces.IMatchingEngine
 
         // Set initial order status
         order.Status = OrderStatus.Prepared;
-
-
-        // LIMIT ORDER
-        if (order.OrderType == "LIMIT")
+        while(remainingQuantity > 0)
         {
-            if (order.IsBuy)
+            if (order.OrderType == "LIMIT")
             {
-                while (remainingQuantity > 0)
+                if (order.IsBuy)
                 {
                     var bestAsk = orderBook.GetBestAsk();
                     if (bestAsk == null || bestAsk.Price > order.Price)
@@ -44,7 +47,7 @@ public class MatchingEngine : Interfaces.IMatchingEngine
                     decimal matchQuantity = Math.Min(remainingQuantity, bestAsk.RemainingVolume);
 
                     var trade = new Trade(
-                        bestAsk.Price,
+                        Math.Min(bestAsk.Price, order.Price),
                         matchQuantity,
                         bestAsk.Id,
                         order.Id,
@@ -58,10 +61,7 @@ public class MatchingEngine : Interfaces.IMatchingEngine
                     if (bestAsk.RemainingVolume == 0)
                         orderBook.RemoveOrder(bestAsk.Id);
                 }
-            }
-            else
-            {
-                while (remainingQuantity > 0)
+                else
                 {
                     var bestBid = orderBook.GetBestBid();
                     if (bestBid == null || bestBid.Price < order.Price)
@@ -70,7 +70,7 @@ public class MatchingEngine : Interfaces.IMatchingEngine
                     decimal matchQuantity = Math.Min(remainingQuantity, bestBid.RemainingVolume);
 
                     var trade = new Trade(
-                        bestBid.Price,
+                        Math.Min(bestBid.Price, order.Price),
                         matchQuantity,
                         bestBid.Id,
                         order.Id,
@@ -85,14 +85,11 @@ public class MatchingEngine : Interfaces.IMatchingEngine
                         orderBook.RemoveOrder(bestBid.Id);
                 }
             }
-        }
 
-        // MARKET ORDER
-        if (order.OrderType == "MARKET")
-        {
-            if (order.IsBuy)
+            // MARKET ORDER
+            if (order.OrderType == "MARKET")
             {
-                while (remainingQuantity > 0)
+                if (order.IsBuy)
                 {
                     var bestAsk = orderBook.GetBestAsk();
                     if (bestAsk == null)
@@ -101,7 +98,7 @@ public class MatchingEngine : Interfaces.IMatchingEngine
                     decimal matchQuantity = Math.Min(remainingQuantity, bestAsk.RemainingVolume);
 
                     var trade = new Trade(
-                        bestAsk.Price,
+                        Math.Min(bestAsk.Price, order.Price),
                         matchQuantity,
                         bestAsk.Id,
                         order.Id,
@@ -115,10 +112,7 @@ public class MatchingEngine : Interfaces.IMatchingEngine
                     if (bestAsk.RemainingVolume == 0)
                         orderBook.RemoveOrder(bestAsk.Id);
                 }
-            }
-            else
-            {
-                while (remainingQuantity > 0)
+                else
                 {
                     var bestBid = orderBook.GetBestBid();
                     if (bestBid == null)
@@ -127,7 +121,7 @@ public class MatchingEngine : Interfaces.IMatchingEngine
                     decimal matchQuantity = Math.Min(remainingQuantity, bestBid.RemainingVolume);
 
                     var trade = new Trade(
-                        bestBid.Price,
+                        Math.Min(bestBid.Price, order.Price),
                         matchQuantity,
                         bestBid.Id,
                         order.Id,
@@ -142,7 +136,13 @@ public class MatchingEngine : Interfaces.IMatchingEngine
                         orderBook.RemoveOrder(bestBid.Id);
                 }
             }
+            // Store trades
+            foreach (var trade in trades)
+                _matchedCache.AddMatchedTrade(trade);
         }
+
+        // LIMIT ORDER
+        
         
 
         // Update order status
@@ -160,7 +160,7 @@ public class MatchingEngine : Interfaces.IMatchingEngine
 
         // Store trades
         foreach (var trade in trades)
-            trades.Add(trade);
+            _matchedCache.AddMatchedTrade(trade);
 
         // Return true if any trade occurred
         return await Task.FromResult(trades.Count > 0);
